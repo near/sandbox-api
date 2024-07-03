@@ -71,7 +71,8 @@ pub(crate) fn set_sandbox_configs(home_dir: impl AsRef<Path>) -> Result<()> {
             "store": {
                 // default to 3,000 files open at a time so that windows WSL can work without configuring.
                 "max_open_files": parse_env("NEAR_SANDBOX_MAX_FILES")?.unwrap_or(3000),
-            }
+            },
+            "wasmcov_limits": true,
         }),
     )
 }

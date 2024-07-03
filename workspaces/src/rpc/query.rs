@@ -202,7 +202,16 @@ impl ProcessQuery for ViewFunction {
 
     fn from_response(resp: RpcQueryResponse) -> Result<Self::Output> {
         match resp.kind {
-            QueryResponseKind::CallResult(result) => Ok(result.into()),
+            QueryResponseKind::CallResult(result) => {
+                #[cfg(feature = "wasmcov")]
+                {
+                    let coverage: Vec<u8> =
+                        near_sdk::base64::decode(&result.logs.last().unwrap()).unwrap();
+                    wasmcov::dir::write_profraw(coverage);
+                }
+
+                Ok(result.into())
+            }
             _ => Err(RpcErrorCode::QueryReturnedInvalidData.message("while querying account")),
         }
     }

@@ -47,6 +47,9 @@ use crate::result::Result;
 use crate::types::{AccountId, InMemorySigner, Nonce, PublicKey};
 use crate::{Network, Worker};
 
+#[cfg(feature = "wasmcov")]
+pub(crate) const DEFAULT_CALL_FN_GAS: NearGas = NearGas::from_tgas(300);
+#[cfg(not(feature = "wasmcov"))]
 pub(crate) const DEFAULT_CALL_FN_GAS: NearGas = NearGas::from_tgas(10);
 pub(crate) const DEFAULT_CALL_DEPOSIT: NearToken = NearToken::from_near(0);
 

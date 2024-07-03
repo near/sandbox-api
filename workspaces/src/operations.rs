@@ -342,7 +342,12 @@ impl CallTransaction {
 
     /// Specify the amount of gas to be used where `gas` is the amount of gas in yocto near.
     pub fn gas(mut self, gas: NearGas) -> Self {
-        self.function = self.function.gas(gas);
+        if cfg!(feature = "wasmcov") {
+            self.function = self.function.gas(DEFAULT_CALL_FN_GAS);
+        } else {
+            self.function = self.function.gas(gas);
+        }
+
         self
     }
 
@@ -373,6 +378,14 @@ impl CallTransaction {
         for callback in self.worker.tx_callbacks.iter() {
             callback(txn.total_gas_burnt)?;
         }
+
+        #[cfg(feature = "wasmcov")]
+        {
+            let logs = &txn.details.logs();
+            let coverage: Vec<u8> = near_sdk::base64::decode(&logs.last().unwrap()).unwrap();
+            wasmcov::dir::write_profraw(coverage);
+        }
+
         Ok(txn)
     }
 
